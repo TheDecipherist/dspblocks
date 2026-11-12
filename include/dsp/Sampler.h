@@ -8,6 +8,7 @@
 // with a long time" is how a machine's sampler ends up sounding like a delay,
 // which is one of the faults this library exists to fix.
 #pragma once
+#include "Constants.h"
 #include <vector>
 #include <cmath>
 #include <algorithm>
@@ -168,8 +169,8 @@ private:
         // 64-sample equal-power fade at both ends of the slice, so the splice
         // does not click
         const double fade = std::min (64.0, (double) n * 0.25);
-        if (p < fade) y *= (float) std::sin (0.5 * M_PI * p / fade);
-        else if (p > (double) n - fade) y *= (float) std::sin (0.5 * M_PI * ((double) n - p) / fade);
+        if (p < fade) y *= (float) std::sin (0.5 * kPi * p / fade);
+        else if (p > (double) n - fade) y *= (float) std::sin (0.5 * kPi * ((double) n - p) / fade);
         return y;
     }
 
@@ -210,8 +211,8 @@ public:
         if (phase >= n) phase -= n;
 
         const double pa = phase, pb = std::fmod (phase + n * 0.5, n);
-        const float ga = (float) std::sin (M_PI * pa / n);
-        const float gb = (float) std::sin (M_PI * pb / n);
+        const float ga = (float) std::sin (kPi * pa / n);
+        const float gb = (float) std::sin (kPi * pb / n);
         // Read backwards: the newest sample of the window comes out first.
         const float a = tap (n - pa);
         const float b = tap (n - pb + n * 0.5);

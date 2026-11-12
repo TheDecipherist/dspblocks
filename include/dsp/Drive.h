@@ -11,6 +11,7 @@
 // threshold does nothing audible until something asks for more headroom than
 // exists, which is exactly what the hardware did.
 #pragma once
+#include "Constants.h"
 #include <cmath>
 #include <algorithm>
 #include <cstdint>
@@ -47,7 +48,7 @@ private:
 class AsymmetricDrive
 {
 public:
-    void prepare (double sampleRate) { r = (float) (1.0 - 2.0 * M_PI * 10.0 / sampleRate); x1 = y1 = 0.0f; }
+    void prepare (double sampleRate) { r = (float) (1.0 - 2.0 * kPi * 10.0 / sampleRate); x1 = y1 = 0.0f; }
     void setDrive (float d) { drive = std::max (0.01f, d); }
     /** 0 is symmetric; positive squashes the top half sooner. */
     void setBias (float b) { bias = std::min (std::max (b, -0.9f), 0.9f); }

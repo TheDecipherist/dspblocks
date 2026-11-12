@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <initializer_list>
 #include "dsp/PianoString.h"
+#include "dsp/Constants.h"
 
 static const double SR = 48000.0;
 
@@ -32,7 +33,7 @@ static std::vector<float> impulse (float amount, int n)
 
 static double magAt (const std::vector<float>& x, double hz)
 {
-    const double w = 2.0 * M_PI * hz / SR;
+    const double w = 2.0 * dsp::kPi * hz / SR;
     std::complex<double> a {0, 0};
     for (size_t i = 0; i < x.size(); ++i)
         a += std::complex<double> (x[i], 0.0) * std::exp (std::complex<double> (0.0, -w * (double) i));
@@ -103,8 +104,8 @@ int main()
     auto centroid = [] (const std::vector<float>& x, int n) {
         double num = 0, den = 0;
         for (int k = 1; k < 500; ++k) { const double hz = k * 40.0; if (hz > SR*0.45) break;
-            const double w = 2.0*M_PI*hz/SR; std::complex<double> a {0,0};
-            for (int i = 0; i < n; ++i) { const double win = 0.5-0.5*std::cos(2*M_PI*i/(n-1));
+            const double w = 2.0*dsp::kPi*hz/SR; std::complex<double> a {0,0};
+            for (int i = 0; i < n; ++i) { const double win = 0.5-0.5*std::cos(2*dsp::kPi*i/(n-1));
                 a += std::complex<double>(x[(size_t)i]*win,0.0)*std::exp(std::complex<double>(0,-w*i)); }
             const double m = std::abs(a); num += hz*m; den += m; }
         return den > 0 ? num/den : 0.0; };

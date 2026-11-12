@@ -41,6 +41,7 @@
 // claiming the right one. It is silenced, counted, and reported through
 // tapReachable() / unreachableTaps() so the UI can grey it and say why.
 #pragma once
+#include "Constants.h"
 #include "Delay.h"
 #include <cmath>
 #include <algorithm>
@@ -143,13 +144,13 @@ public:
         // stable at the lowest Q: at 18 kHz through the old cap the state ran
         // to infinity and the whole grid read NaN.
         t.svfOn  = cutoffHz < 0.34f * (float) sr || reso > 0.005f;
-        t.svfF   = 2.0f * std::sin ((float) M_PI * std::min (std::max (cutoffHz / (float) sr, 0.0005f), 0.18f));
+        t.svfF   = 2.0f * std::sin ((float) kPi * std::min (std::max (cutoffHz / (float) sr, 0.0005f), 0.18f));
         t.svfQ   = std::max (0.06f, 1.0f - clamp01 (reso) * 0.97f);
         t.drive  = driveDb > 0.01f ? std::pow (10.0f, std::min (driveDb, 24.0f) / 20.0f) : 0.0f;
         t.driveNorm = t.drive > 0.0f ? 0.5f / std::tanh (0.5f * t.drive) : 1.0f;
         // Constant power, computed once here rather than per sample: the pan
         // law is trig and 64 taps of it per sample is not worth paying for.
-        const float th = (t.pan + 1.0f) * 0.25f * (float) M_PI;
+        const float th = (t.pan + 1.0f) * 0.25f * (float) kPi;
         t.tgtL = t.volume * std::cos (th);
         t.tgtR = t.volume * std::sin (th);
         retimeTap (lane, i);
@@ -173,7 +174,7 @@ public:
     void setMix (float mix01)
     {
         mix = clamp01 (mix01);
-        const float th = mix * 0.5f * (float) M_PI;
+        const float th = mix * 0.5f * (float) kPi;
         tgtDry = std::cos (th);
         tgtWet = std::sin (th);
     }
@@ -392,7 +393,7 @@ private:
     {
         const double fc = 200.0 * std::pow (20000.0 / 200.0, (double) decay);
         if (fc >= sr * 0.45) return 0.0f;                    // clean repeat
-        return (float) (1.0 - std::exp (-2.0 * M_PI * fc / sr));
+        return (float) (1.0 - std::exp (-2.0 * kPi * fc / sr));
     }
 
     void retime()

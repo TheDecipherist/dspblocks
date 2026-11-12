@@ -45,6 +45,7 @@
 // evidence too.
 // ---------------------------------------------------------------------------
 #pragma once
+#include "Constants.h"
 #include "Reverb.h"
 #include <algorithm>
 #include <cmath>
@@ -114,7 +115,7 @@ inline void load (EarlyReflections& er, const EarlyPattern& p,
             // sides. sin/cos so the pair is constant-power and the mono sum of
             // the pattern does not change as the width does.
             const double spread = (n > 1) ? (double) i / (double) (n - 1) : 0.0;
-            const double angle = (M_PI * 0.25) * (1.0 + ((i & 1) ? spread : -spread));
+            const double angle = (kPi * 0.25) * (1.0 + ((i & 1) ? spread : -spread));
             l = g * (float) std::cos (angle) * 1.41421356f;
             r = g * (float) std::sin (angle) * 1.41421356f;
         }

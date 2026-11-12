@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <initializer_list>
 #include "dsp/PianoString.h"
+#include "dsp/Constants.h"
 static const double SR=48000.0;
 
 // Spectral flatness: 1 is noise, near 0 is a tone. The attack of a real piano is
@@ -16,8 +17,8 @@ static double flatness (const std::vector<float>& x, size_t from, int n)
     for (int k = 2; k < 160; ++k)
     {
         const double hz = k * 60.0; if (hz > SR * 0.45) break;
-        const double w = 2*M_PI*hz/SR; std::complex<double> a {0,0};
-        for (int i = 0; i < n; ++i) { const double win = 0.5-0.5*std::cos(2*M_PI*i/(n-1));
+        const double w = 2*dsp::kPi*hz/SR; std::complex<double> a {0,0};
+        for (int i = 0; i < n; ++i) { const double win = 0.5-0.5*std::cos(2*dsp::kPi*i/(n-1));
             a += std::complex<double>(x[from+(size_t)i]*win,0.0)*std::exp(std::complex<double>(0,-w*i)); }
         const double m = std::max (1e-9, std::abs (a));
         lg += std::log (m); ar += m; ++c;

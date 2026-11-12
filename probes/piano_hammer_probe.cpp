@@ -15,6 +15,7 @@
 #include <complex>
 #include <algorithm>
 #include "dsp/PianoString.h"
+#include "dsp/Constants.h"
 
 static const double SR = 48000.0;
 
@@ -49,11 +50,11 @@ static Shot measure (float f0, float B, float vel, float hardness, bool asPluck)
     {
         const double hz = k * 25.0;                    // 25 Hz resolution to 22.5 kHz
         if (hz > SR * 0.45) break;
-        const double w = 2.0 * M_PI * hz / SR;
+        const double w = 2.0 * dsp::kPi * hz / SR;
         std::complex<double> acc {0, 0};
         for (int i = 0; i < n; ++i)
         {
-            const double win = 0.5 - 0.5 * std::cos (2.0 * M_PI * i / (n - 1));
+            const double win = 0.5 - 0.5 * std::cos (2.0 * dsp::kPi * i / (n - 1));
             acc += std::complex<double> (x[(size_t) i] * win, 0.0)
                  * std::exp (std::complex<double> (0.0, -w * i));
         }
@@ -140,9 +141,9 @@ int main()
         st.setHammer (0.5f); st.strike (0.8f, 0.125f);
         std::vector<float> y ((size_t)(SR*0.35));
         for (auto& v : y) v = st.process();
-        auto bin = [&] (double hz) { const double w = 2*M_PI*hz/SR;
+        auto bin = [&] (double hz) { const double w = 2*dsp::kPi*hz/SR;
             std::complex<double> a {0,0};
-            for (size_t i = 0; i < y.size(); ++i) { const double win = 0.5-0.5*std::cos(2*M_PI*i/(y.size()-1));
+            for (size_t i = 0; i < y.size(); ++i) { const double win = 0.5-0.5*std::cos(2*dsp::kPi*i/(y.size()-1));
                 a += std::complex<double>(y[i]*win,0.0)*std::exp(std::complex<double>(0,-w*(double)i)); }
             return 20.0*std::log10 (std::max (1e-9, std::abs (a))); };
         const double p6 = bin (220.0*6), p7 = bin (220.0*7), p8 = bin (220.0*8), p9 = bin (220.0*9);

@@ -47,9 +47,7 @@
 #include <cmath>
 #include <cstdint>
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
+#include "Constants.h"
 
 namespace dsp::jp {
 
@@ -169,7 +167,7 @@ struct Osc
                 out += (2.0 * ph - 1.0 - blep (ph, incr)) * (i == 3 ? centre : side);
             }
             // the hardware high-passes the stack near the fundamental [COR]
-            const double a = std::exp (-2.0 * M_PI * hz / sr);
+            const double a = std::exp (-2.0 * kPi * hz / sr);
             hpState = a * hpState + (1 - a) * out;
             return (out - hpState) * 0.6;
         }
@@ -181,7 +179,7 @@ struct Osc
             {   // TRIANGLE MOD: a triangle folded by a sine shaper, c1 = amount, c2 = asymmetry [EAR]
                 const double tri = t < 0.5 ? 4 * t - 1 : 3 - 4 * t;
                 const double amt = 1.0 + 6.0 * (c1 / 127.0), asym = c2 / 127.0;
-                return std::sin (tri * amt * M_PI * 0.5 + asym * tri * tri * 2.0) * 0.8;
+                return std::sin (tri * amt * kPi * 0.5 + asym * tri * tri * 2.0) * 0.8;
             }
             return 2.0 * t - 1.0 - blep (t, dt);                                    // OSC2 SAW
             case Noise: if (isOsc1)
@@ -199,7 +197,7 @@ struct Osc
                 // The LAW is [FW 0xA610] 100*c1 - 1292 cents and it was never in
                 // doubt; what was wrong was where those cents are anchored.
                 const double fc = centsToHz (100.0 * c1 - 1292.0 + 6900.0 - 6000.0);
-                const double a = std::exp (-2.0 * M_PI * std::min (fc, sr * 0.45) / sr);
+                const double a = std::exp (-2.0 * kPi * std::min (fc, sr * 0.45) / sr);
                 lpState = a * lpState + (1 - a) * w;
                 return lpState * (0.3 + 0.7 * c2 / 127.0) * 1.5;
             }

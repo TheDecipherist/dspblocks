@@ -10,6 +10,7 @@
 #include <complex>
 #include <algorithm>
 #include "dsp/Blocks.h"
+#include "dsp/Constants.h"
 
 static int failures = 0;
 static void check (bool ok, const char* what, double got = 0, double want = 0)
@@ -29,7 +30,7 @@ static double dominantHz (const std::vector<float>& x, double sr)
     for (int k = 4; k < N / 2; ++k)
     {
         double re = 0, im = 0;
-        const double w = 2.0 * M_PI * k / N;
+        const double w = 2.0 * dsp::kPi * k / N;
         for (int i = 0; i < N; ++i) { re += x[off + i] * std::cos (w * i); im -= x[off + i] * std::sin (w * i); }
         const double m = re * re + im * im;
         if (m > best) { best = m; bestK = k; }
@@ -91,7 +92,7 @@ int main()
             double ph = 0;
             for (int i = 0; i < 40000; ++i)
             {
-                const float v = (float) std::sin (ph); ph += 2.0 * M_PI * 440.0 / sr;
+                const float v = (float) std::sin (ph); ph += 2.0 * dsp::kPi * 440.0 / sr;
                 out.push_back (p.process (v));
             }
             const double want = 440.0 * std::pow (2.0, semis / 12.0);
@@ -120,7 +121,7 @@ int main()
             q.setDepth (0.0f); q.setMix (0.5f); q.setFeedback (0.0f); q.setRange (800.0, 800.0);
             double e = 0, phase = 0;
             for (int i = 0; i < 4000; ++i)
-            { const float v = (float) std::sin (phase); phase += 2.0 * M_PI * f / sr;
+            { const float v = (float) std::sin (phase); phase += 2.0 * dsp::kPi * f / sr;
               const float y = q.process (v); if (i > 2000) e += (double) y * y; }
             if (prevPrev > prev && prev < e && prev < 0.25 * prevPrev) ++notches;
             prevPrev = prev; prev = e;
@@ -168,7 +169,7 @@ int main()
             dsp::OnePole p; p.prepare (sr); p.setCutoff (fc);
             double e = 0, ph = 0;
             for (int i = 0; i < 20000; ++i)
-            { const float v = (float) std::sin (ph); ph += 2.0 * M_PI * f / sr;
+            { const float v = (float) std::sin (ph); ph += 2.0 * dsp::kPi * f / sr;
               const float y = p.lp (v); if (i > 10000) e += (double) y * y; }
             return std::sqrt (e / 10000.0) * std::sqrt (2.0);
         };
@@ -181,7 +182,7 @@ int main()
             dsp::StateVariableFilter s; s.prepare (sr); s.set (fc, q);
             double e = 0, ph = 0;
             for (int i = 0; i < 20000; ++i)
-            { const float v = (float) std::sin (ph); ph += 2.0 * M_PI * f / sr;
+            { const float v = (float) std::sin (ph); ph += 2.0 * dsp::kPi * f / sr;
               const float y = s.lowpass (v); if (i > 10000) e += (double) y * y; }
             return std::sqrt (e / 10000.0) * std::sqrt (2.0);
         };
@@ -198,7 +199,7 @@ int main()
             dsp::LadderFilter l; l.prepare (sr); l.set (fc, res);
             double e = 0, ph = 0;
             for (int i = 0; i < 20000; ++i)
-            { const float v = (float) std::sin (ph); ph += 2.0 * M_PI * f / sr;
+            { const float v = (float) std::sin (ph); ph += 2.0 * dsp::kPi * f / sr;
               const float y = l.process (v * 0.2f); if (i > 10000) e += (double) y * y; }
             return std::sqrt (e / 10000.0) * std::sqrt (2.0) / 0.2;
         };
@@ -225,8 +226,8 @@ int main()
                         for (int i = 0; i < 4800; ++i)
                         {
                             const double t = i / 48000.0;
-                            const float x = amp * (float) (std::sin (2 * M_PI * 110 * t) + 0.5 * std::sin (2 * M_PI * 1300 * t)
-                                                           + 0.25 * std::sin (2 * M_PI * 5000 * t));
+                            const float x = amp * (float) (std::sin (2 * dsp::kPi * 110 * t) + 0.5 * std::sin (2 * dsp::kPi * 1300 * t)
+                                                           + 0.25 * std::sin (2 * dsp::kPi * 5000 * t));
                             sum += (double) l.process (x) * (1.0 + (i % 7));
                         }
                     }
@@ -239,7 +240,7 @@ int main()
                 dsp::LadderFilter l; l.prepare (sr); l.set (2000.0, 0.0f); l.setStageSaturation (stages);
                 double e = 0, ph = 0;
                 for (int i = 0; i < 20000; ++i)
-                { const float y = l.process (amp * (float) std::sin (ph)); ph += 2.0 * M_PI * 100.0 / sr; if (i > 10000) e += (double) y * y; }
+                { const float y = l.process (amp * (float) std::sin (ph)); ph += 2.0 * dsp::kPi * 100.0 / sr; if (i > 10000) e += (double) y * y; }
                 return 10.0 * std::log10 (e / 10000.0);
             };
             const double quiet = level (true, 0.05f) - level (false, 0.05f), loud = level (true, 1.3f) - level (false, 1.3f);
@@ -317,8 +318,8 @@ int main()
             // distortion on a stage that was doing nothing.
             double re = 0, im = 0, fund = 0, fim = 0; const int N = 8192; const double f = sr * 128.0 / N;
             for (int i = 0; i < N; ++i)
-            { const float y = s.process (amp * (float) std::sin (2.0 * M_PI * f * i / sr));
-              const double w3 = 2.0 * M_PI * 3.0 * f * i / sr, w1 = 2.0 * M_PI * f * i / sr;
+            { const float y = s.process (amp * (float) std::sin (2.0 * dsp::kPi * f * i / sr));
+              const double w3 = 2.0 * dsp::kPi * 3.0 * f * i / sr, w1 = 2.0 * dsp::kPi * f * i / sr;
               re += y * std::cos (w3); im -= y * std::sin (w3);
               fund += y * std::cos (w1); fim -= y * std::sin (w1); }
             const double h3 = std::sqrt (re * re + im * im), h1 = std::sqrt (fund * fund + fim * fim);
@@ -561,7 +562,7 @@ int main()
                 const double a = 1.0 - std::exp (-1.0 / (0.03 * sr));
                 for (int i = 0; i < (int) (sr * 8); ++i)
                 {
-                    const float x = (float) std::sin (2.0 * M_PI * 1000.0 * i / sr);
+                    const float x = (float) std::sin (2.0 * dsp::kPi * 1000.0 * i / sr);
                     float l, r; t.process (x, x, l, r);
                     e += a * (std::fabs ((double) l) - e);
                     if (i > (int) (sr * 3)) env.push_back (e);
@@ -649,9 +650,9 @@ int main()
         dsp::Compressor c; c.prepare (sr);
         c.setThresholdDb (-20.0f); c.setRatio (8.0f); c.setKneeDb (0.0f); c.setTimes (1.0, 50.0);
         double loudOut = 0, quietOut = 0;
-        for (int i = 0; i < 24000; ++i) { const float v = 1.0f * (float) std::sin (2.0 * M_PI * 200.0 * i / sr); const float y = c.process (v); if (i > 12000) loudOut += (double) y * y; }
+        for (int i = 0; i < 24000; ++i) { const float v = 1.0f * (float) std::sin (2.0 * dsp::kPi * 200.0 * i / sr); const float y = c.process (v); if (i > 12000) loudOut += (double) y * y; }
         c.reset();
-        for (int i = 0; i < 24000; ++i) { const float v = 0.01f * (float) std::sin (2.0 * M_PI * 200.0 * i / sr); const float y = c.process (v); if (i > 12000) quietOut += (double) y * y; }
+        for (int i = 0; i < 24000; ++i) { const float v = 0.01f * (float) std::sin (2.0 * dsp::kPi * 200.0 * i / sr); const float y = c.process (v); if (i > 12000) quietOut += (double) y * y; }
         const double loudRms = std::sqrt (loudOut / 12000.0), quietRms = std::sqrt (quietOut / 12000.0);
         // input differs by 40 dB; at 8:1 above threshold the output should differ by far less
         const double outDb = 20.0 * std::log10 (loudRms / std::max (quietRms, 1e-9));
@@ -670,7 +671,7 @@ int main()
     {
         dsp::Sampler s; s.prepare (sr, 1.0);
         s.record();
-        for (int i = 0; i < 4800; ++i) s.process ((float) std::sin (2.0 * M_PI * 440.0 * i / sr));
+        for (int i = 0; i < 4800; ++i) s.process ((float) std::sin (2.0 * dsp::kPi * 440.0 * i / sr));
         s.stop();
         check (std::fabs (s.recordedSeconds() - 0.1) < 0.005, "recorded the length it was fed", s.recordedSeconds(), 0.1);
         s.setLoop (true); s.setSpeed (1.0); s.setReverse (false); s.setWindow (0.0, 1.0);
@@ -704,7 +705,7 @@ int main()
         {
             dsp::DiatonicShifter d; d.prepare (sr);
             d.setScale (dsp::Scale::major (0)); d.setSteps (2); d.setWindow (0.05);
-            for (int i = 0; i < (int) (sr * 0.4); ++i) d.process ((float) std::sin (2.0 * M_PI * hz * i / sr));
+            for (int i = 0; i < (int) (sr * 0.4); ++i) d.process ((float) std::sin (2.0 * dsp::kPi * hz * i / sr));
             return d.currentRatio();
         };
         const double rC = ratioFor (261.63), rD = ratioFor (293.66);

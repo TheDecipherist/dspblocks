@@ -16,6 +16,7 @@
 // (how fast the tank fills in), and how far a steady tone's level wanders
 // (whether the tank is standing still, which is what a metallic tail is).
 #include "dsp/Blocks.h"
+#include "dsp/Constants.h"
 #include <cstdio>
 #include <cstring>
 #include <string>
@@ -61,7 +62,7 @@ std::vector<float> testSignal (double sr)
     x.resize (x.size() + gap, 0.0f);
     for (int i = 0; i < (int) (sr * 0.25); ++i)
     { const double t = i / sr, env = std::min (1.0, t / 0.005) * std::exp (-t * 6.0);
-      x.push_back ((float) (0.7 * env * std::sin (2.0 * M_PI * 440.0 * t))); }
+      x.push_back ((float) (0.7 * env * std::sin (2.0 * dsp::kPi * 440.0 * t))); }
     x.resize (x.size() + gap, 0.0f);
     return x;
 }
@@ -92,7 +93,7 @@ double toneWander (Tank& t, double sr)
     const double a = 1.0 - std::exp (-1.0 / (0.03 * sr));
     for (int i = 0; i < (int) (sr * 8); ++i)
     {
-        const float x = (float) std::sin (2.0 * M_PI * 1000.0 * i / sr);
+        const float x = (float) std::sin (2.0 * dsp::kPi * 1000.0 * i / sr);
         float l, r; t.process (x, x, l, r);
         e += a * (std::fabs ((double) l) - e);
         if (i > (int) (sr * 3)) env.push_back (e);

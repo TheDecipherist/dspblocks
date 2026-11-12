@@ -5,6 +5,7 @@
 // only be a whole sample cannot be swept without stepping, and a stepping sweep
 // is what makes a flanger sound like a broken chorus.
 #pragma once
+#include "Constants.h"
 #include <vector>
 #include <cmath>
 #include <algorithm>
@@ -140,7 +141,7 @@ private:
     float coef (double hz) const
     {
         if (hz <= 0.0 || hz >= sr * 0.5) return 0.0f;
-        return (float) (1.0 - std::exp (-2.0 * M_PI * hz / sr));
+        return (float) (1.0 - std::exp (-2.0 * kPi * hz / sr));
     }
     DelayLine line;
     double sr = 48000.0, delaySamples = 0.0;
@@ -173,7 +174,7 @@ public:
     { fb = std::min (std::max (f, -0.99f), 0.99f); fbTap = fromTap; }
     void setDamping (double highCutHz)
     { hcA = (highCutHz > 0 && highCutHz < sr * 0.5)
-              ? (float) (1.0 - std::exp (-2.0 * M_PI * highCutHz / sr)) : 0.0f; }
+              ? (float) (1.0 - std::exp (-2.0 * kPi * highCutHz / sr)) : 0.0f; }
 
     void process (float x, float& outL, float& outR)
     {

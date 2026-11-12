@@ -19,6 +19,7 @@
 //    bands by time frames - so a repeating echo and a smooth decay are
 //    different SHAPES even when their totals match.
 #pragma once
+#include "Constants.h"
 #include <vector>
 #include <string>
 #include <cmath>
@@ -249,7 +250,7 @@ inline double bandEnergy (const float* x, int n, double sr, double lo, double hi
     for (int p = 0; p < probes; ++p)
     {
         const double f = lo * std::pow (hi / lo, (p + 0.5) / probes);
-        const double w = 2.0 * M_PI * f / sr;
+        const double w = 2.0 * kPi * f / sr;
         const double c = 2.0 * std::cos (w);
         double s1 = 0.0, s2 = 0.0;
         for (int i = 0; i < n; ++i) { const double s0 = x[i] + c * s1 - s2; s2 = s1; s1 = s0; }

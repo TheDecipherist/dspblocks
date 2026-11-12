@@ -15,6 +15,7 @@
 //              is the whole difference and it is why "Swept Combs" is not
 //              "Swept Delays".
 #pragma once
+#include "Constants.h"
 #include "Delay.h"
 #include <cmath>
 #include <vector>
@@ -34,7 +35,7 @@ public:
     {
         if (hz <= 0.0) { a = 0.0f; return; }
         if (hz >= sr * 0.5) { a = 1.0f; return; }
-        a = (float) (1.0 - std::exp (-2.0 * M_PI * hz / sr));
+        a = (float) (1.0 - std::exp (-2.0 * kPi * hz / sr));
     }
     float lp (float x) { z += a * (x - z); return z; }
     float hp (float x) { return x - lp (x); }
@@ -61,7 +62,7 @@ public:
     void set (double cutoffHz, double q)
     {
         const double f = std::min (std::max (cutoffHz, 5.0), sr * 0.49);
-        g = (float) std::tan (M_PI * f / sr);
+        g = (float) std::tan (kPi * f / sr);
         k = (float) (1.0 / std::max (0.05, q));
         a1 = 1.0f / (1.0f + g * (g + k));
         a2 = g * a1;
@@ -125,7 +126,7 @@ public:
     {
         const double f = std::min (std::max (cutoffHz, 5.0), sr * 0.45);
         // Pre-warped one-pole coefficient, shared by all four stages.
-        const double wd = 2.0 * M_PI * f;
+        const double wd = 2.0 * kPi * f;
         const double T  = 1.0 / sr;
         const double wa = (2.0 / T) * std::tan (wd * T * 0.5);
         g = (float) (wa * T * 0.5);
@@ -195,7 +196,7 @@ public:
 
     void set (Type t, double freqHz, double q, double gainDb = 0.0)
     {
-        const double w0 = 2.0 * M_PI * std::min (std::max (freqHz, 5.0), sr * 0.49) / sr;
+        const double w0 = 2.0 * kPi * std::min (std::max (freqHz, 5.0), sr * 0.49) / sr;
         const double cw = std::cos (w0), sw = std::sin (w0);
         const double A  = std::pow (10.0, gainDb / 40.0);
         const double alpha = sw / (2.0 * std::max (0.05, q));
@@ -418,7 +419,7 @@ private:
 class DCBlocker
 {
 public:
-    void prepare (double sampleRate) { r = (float) (1.0 - 2.0 * M_PI * 10.0 / sampleRate); reset(); }
+    void prepare (double sampleRate) { r = (float) (1.0 - 2.0 * kPi * 10.0 / sampleRate); reset(); }
     void reset() { x1 = y1 = 0.0f; }
     float process (float x) { const float y = x - x1 + r * y1; x1 = x; y1 = y; return y; }
 private:

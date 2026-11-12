@@ -12,6 +12,7 @@
 // cheap-pitch-shifter artefact. Two pointers half a window apart, crossfaded,
 // means one is always far from the write head.
 #pragma once
+#include "Constants.h"
 #include "Delay.h"
 #include <cmath>
 #include <vector>
@@ -81,8 +82,8 @@ public:
         // linear fade dips 3 dB in the middle and that dip is audible as a
         // periodic throb at the window rate.
         const double fa = readA / w;
-        const float ga = (float) std::sin (M_PI * fa);
-        const float gb = (float) std::sin (M_PI * (readB / w));
+        const float ga = (float) std::sin (kPi * fa);
+        const float gb = (float) std::sin (kPi * (readB / w));
 
         const float a = line.readCubic (readA + 1.0);
         const float b = line.readCubic (readB + 1.0);

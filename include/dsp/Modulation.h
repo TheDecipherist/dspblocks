@@ -16,6 +16,7 @@
 // Getting a flanger's delay range wrong turns it into a chorus, which is exactly
 // the failure this library exists to stop.
 #pragma once
+#include "Constants.h"
 #include "Delay.h"
 #include <cmath>
 #include <array>
@@ -30,7 +31,7 @@ public:
     void prepare (double sampleRate) { sr = sampleRate; z = 0.0f; }
     void reset() { z = 0.0f; }
     void setCutoff (double hz)
-    { a = (hz <= 0.0) ? 0.0f : (hz >= sr * 0.5 ? 1.0f : (float) (1.0 - std::exp (-2.0 * M_PI * hz / sr))); }
+    { a = (hz <= 0.0) ? 0.0f : (hz >= sr * 0.5 ? 1.0f : (float) (1.0 - std::exp (-2.0 * kPi * hz / sr))); }
     float lp (float x) { z += a * (x - z); return z; }
 private:
     double sr = 48000.0; float a = 1.0f, z = 0.0f;
@@ -62,7 +63,7 @@ public:
         }
         switch (shape)
         {
-            case Shape::Sine:     return (float) std::sin (2.0 * M_PI * p);
+            case Shape::Sine:     return (float) std::sin (2.0 * kPi * p);
             case Shape::Triangle: return (float) (4.0 * std::fabs (p - 0.5) - 1.0);
             case Shape::Square:   return p < 0.5 ? 1.0f : -1.0f;
             case Shape::Saw:      return (float) (2.0 * p - 1.0);
@@ -108,7 +109,7 @@ public:
         // sweep exponentially: a phaser swept linearly in Hz spends most of its
         // time at the top of the range and sounds lopsided
         const double f = lo * std::pow (hi / lo, (double) (0.5f * (m + 1.0f)));
-        const double w = std::tan (M_PI * std::min (f, sr * 0.45) / sr);
+        const double w = std::tan (kPi * std::min (f, sr * 0.45) / sr);
         const float a = (float) ((w - 1.0) / (w + 1.0));   // allpass coefficient
 
         float v = x + fbState * fb;
@@ -159,7 +160,7 @@ public:
     void setFeedback (float f) { fb = std::min (std::max (f, -0.95f), 0.95f); }
     void setMix (float m) { mix = std::min (std::max (m, 0.0f), 1.0f); }
     void setDamping (double hz)
-    { hcA = (hz > 0 && hz < sr * 0.5) ? (float) (1.0 - std::exp (-2.0 * M_PI * hz / sr)) : 0.0f; }
+    { hcA = (hz > 0 && hz < sr * 0.5) ? (float) (1.0 - std::exp (-2.0 * kPi * hz / sr)) : 0.0f; }
 
     float process (float x)
     {
@@ -257,7 +258,7 @@ public:
     void process (float x, float& outL, float& outR)
     {
         const float a = lfo.tick();
-        const float b = (float) std::sin (2.0 * M_PI * (0.25 + offset) + std::asin (std::min (std::max (a, -1.0f), 1.0f)));
+        const float b = (float) std::sin (2.0 * kPi * (0.25 + offset) + std::asin (std::min (std::max (a, -1.0f), 1.0f)));
         outL = x * (1.0f - depth * 0.5f * (1.0f - a));
         outR = x * (1.0f - depth * 0.5f * (1.0f - (offset > 0.0 ? b : a)));
     }
@@ -321,10 +322,10 @@ public:
 
         // Doppler: delay swept in quadrature with the amplitude, depth scaled
         // by the rotor radius (the horn swings wider than the drum).
-        const double hs = std::sin (2.0 * M_PI * hornPhase);
-        const double hc = std::cos (2.0 * M_PI * hornPhase);
-        const double ds = std::sin (2.0 * M_PI * drumPhase);
-        const double dc = std::cos (2.0 * M_PI * drumPhase);
+        const double hs = std::sin (2.0 * kPi * hornPhase);
+        const double hc = std::cos (2.0 * kPi * hornPhase);
+        const double ds = std::sin (2.0 * kPi * drumPhase);
+        const double dc = std::cos (2.0 * kPi * drumPhase);
 
         hornLine.push (high);
         drumLine.push (low);

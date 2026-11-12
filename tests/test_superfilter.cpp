@@ -18,6 +18,7 @@
 #include <algorithm>
 #include "dsp/Oversampler.h"
 #include "dsp/SuperFilter.h"
+#include "dsp/Constants.h"
 
 using dsp::filter::SuperFilter;
 static const double kSr = 48000.0;
@@ -57,7 +58,7 @@ static double tone (const Cfg& c, double f, int warm = 8000, int meas = 16384)
         if (i >= warm)
         {
             const int n = i - warm;
-            const double w = 0.5 - 0.5 * std::cos (2.0 * M_PI * n / meas);
+            const double w = 0.5 - 0.5 * std::cos (2.0 * dsp::kPi * n / meas);
             const std::complex<double> e (std::cos (-a), std::sin (-a));
             num += (double) y * w * e;
             den += (double) x * w * e;
@@ -94,8 +95,8 @@ static std::vector<float> c3saw (double f0 = 130.81, int n = 96000)
     {
         ph += f0 / kSr; if (ph >= 1.0) ph -= 1.0;
         double x = 0.0;
-        for (int h = 1; (double) h * f0 < kSr * 0.45; ++h) x += std::sin (2.0 * M_PI * h * ph) / h;
-        v.push_back ((float) (x * 2.0 / M_PI));
+        for (int h = 1; (double) h * f0 < kSr * 0.45; ++h) x += std::sin (2.0 * dsp::kPi * h * ph) / h;
+        v.push_back ((float) (x * 2.0 / dsp::kPi));
     }
     return v;
 }
@@ -256,7 +257,7 @@ int main()
               if (i < j) std::swap (buf[i], buf[j]); }
             for (size_t len = 2; len <= (size_t) N; len <<= 1)
             {
-                const double ang = -2.0 * M_PI / (double) len;
+                const double ang = -2.0 * dsp::kPi / (double) len;
                 const std::complex<double> wl (std::cos (ang), std::sin (ang));
                 for (size_t i = 0; i < (size_t) N; i += len)
                 { std::complex<double> w (1.0, 0.0);

@@ -24,9 +24,7 @@
 #include <algorithm>
 #include <cmath>
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
+#include "Constants.h"
 
 namespace dsp::jp {
 
@@ -40,7 +38,7 @@ inline constexpr double kAsicAudioRate = 44100.0;
 inline double asicFreqWordHz (int word, double rate = kAsicAudioRate) noexcept
 {
     const double halfF = std::clamp (word / 32768.0, 0.0, 1.0);
-    return rate / M_PI * std::asin (halfF);
+    return rate / kPi * std::asin (halfF);
 }
 
 /** RESONANCE LEVEL STAGING [EAR], and why it is not a taste knob. The ROM's damping
@@ -67,7 +65,7 @@ struct Svf
 
     void set (double hz, double q, double sr) noexcept
     {
-        g = std::tan (M_PI * std::min (hz, sr * 0.49) / sr); k = 1.0 / q;
+        g = std::tan (kPi * std::min (hz, sr * 0.49) / sr); k = 1.0 / q;
         a1 = 1.0 / (1.0 + g * (g + k)); a2 = g * a1; a3 = g * a2;
     }
 
