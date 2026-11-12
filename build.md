@@ -38,7 +38,7 @@ already, its output is unchanged byte for byte, and fixing it was outside this o
 
 **MSVC:** cl 19.44.35228 x64 (VS 2022 Build Tools, vcvars64.bat via cmd.exe from WSL),
 `/std:c++17 /EHsc /permissive- /W3`, one translation unit including every header plus
-one per header. `origin/main`: 17 of the 25 one-header units and the all-headers unit fail,
+one per header. `origin/main`: 15 of the 25 one-header units and the all-headers unit fail,
 every error `C2065 'M_PI': undeclared identifier` or its knock-on (`C2737`, the
 const it left uninitialised). Branch: all 27 units (including Constants.h) compile with
 no errors and no warnings. GCC builds every target it built before.
