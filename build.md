@@ -47,3 +47,7 @@ no errors and no warnings. GCC builds every target it built before.
 used `M_PI`); folding it into `dsp::kPi` would be a change this order did not allow.
 Consumers on GCC/Clang that relied on JpFilter.h/JpOsc.h for `M_PI` still get it from
 <cmath>; on MSVC nothing did, since every other header already failed there.
+
+**Landed** 2026-11-12: `main` fast-forwarded to 6becc82 (1d03fd1, e25c4c3, a34c265 the
+report, 6becc82 a count correction in it), pushed, `git ls-remote origin refs/heads/main`
+equal to the local HEAD. No CLAUDE.md, so the trunk needed no yes. The branch is kept.
